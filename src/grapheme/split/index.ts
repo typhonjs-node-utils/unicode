@@ -158,9 +158,10 @@ export function graphemeSplit(str: string): string[]
 /**
  * @param {string}   str - String to split.
  *
- * @returns {Generator<string>} An iterator returning grapheme clusters.
+ * @returns {IterableIterator<string>} An iterator returning grapheme clusters.
+ * @yields {string}
  */
-export function* graphemeIterator(str: string): Generator<string>
+export function* graphemeIterator(str: string): IterableIterator<string>
 {
    for (const grapheme of graphemeSplit(str))
    {

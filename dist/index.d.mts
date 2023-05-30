@@ -7,9 +7,10 @@ declare function graphemeSplit(str: string): string[];
 /**
  * @param {string}   str - String to split.
  *
- * @returns {Generator<string>} An iterator returning grapheme clusters.
+ * @returns {IterableIterator<string>} An iterator returning grapheme clusters.
+ * @yields {string}
  */
-declare function graphemeIterator(str: string): Generator<string>;
+declare function graphemeIterator(str: string): IterableIterator<string>;
 
 declare class UnicodeTrie {
     data: any;
