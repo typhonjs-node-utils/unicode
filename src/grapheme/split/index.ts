@@ -1,5 +1,5 @@
 import { toUint8Array }    from '#runtime/data/format/base64';
-// import UnicodeTrie         from 'unicode-trie';
+
 import { UnicodeTrie }     from '../../unicode-trie'
 
 import { typeTrieB64 }     from './typeTrieB64';
@@ -10,10 +10,8 @@ import { ClusterBreak } from '../types';
 const typeTrie = new UnicodeTrie(toUint8Array(typeTrieB64));
 const extPict = new UnicodeTrie(toUint8Array(extPictB64));
 
-// const typeTrie = { get: () => void 0 };
-// const extPict = { get: (str) => void 0 };
-
-function is(type, bit) {
+function is(type, bit)
+{
    return (type & bit) !== 0;
 }
 

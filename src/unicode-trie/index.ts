@@ -76,12 +76,10 @@ export class UnicodeTrie
       if (isBuffer || data instanceof Uint8Array)
       {
          // read binary format
-         let uncompressedLength;
          if (isBuffer)
          {
             this.highStart = data.readUInt32LE(0);
             this.errorValue = data.readUInt32LE(4);
-            uncompressedLength = data.readUInt32LE(8);
             data = data.slice(12);
          }
          else
@@ -89,7 +87,6 @@ export class UnicodeTrie
             const view = new DataView(data.buffer);
             this.highStart = view.getUint32(0, true);
             this.errorValue = view.getUint32(4, true);
-            uncompressedLength = view.getUint32(8, true);
             data = data.subarray(12);
          }
 
@@ -101,7 +98,6 @@ export class UnicodeTrie
          swap32LE(data);
 
          this.data = new Uint32Array(data.buffer);
-
       }
       else
       {
@@ -133,7 +129,9 @@ export class UnicodeTrie
          // lead surrogate code units and code points.
          //   The main index has the code unit data.
          //   For this function, we need the code point data.
-         index = (this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+         index = (this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)] << INDEX_SHIFT) +
+          (codePoint & DATA_MASK);
+
          return this.data[index];
       }
 

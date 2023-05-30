@@ -75,17 +75,16 @@ class UnicodeTrie {
     constructor(data) {
         const isBuffer = (typeof data.readUInt32BE === 'function') && (typeof data.slice === 'function');
         if (isBuffer || data instanceof Uint8Array) {
+            // read binary format
             if (isBuffer) {
                 this.highStart = data.readUInt32LE(0);
                 this.errorValue = data.readUInt32LE(4);
-                data.readUInt32LE(8);
                 data = data.slice(12);
             }
             else {
                 const view = new DataView(data.buffer);
                 this.highStart = view.getUint32(0, true);
                 this.errorValue = view.getUint32(4, true);
-                view.getUint32(8, true);
                 data = data.subarray(12);
             }
             // double inflate the actual trie data
@@ -117,7 +116,8 @@ class UnicodeTrie {
             // lead surrogate code units and code points.
             //   The main index has the code unit data.
             //   For this function, we need the code point data.
-            index = (this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+            index = (this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)] << INDEX_SHIFT) +
+                (codePoint & DATA_MASK);
             return this.data[index];
         }
         if (codePoint < this.highStart) {
@@ -160,8 +160,6 @@ var ClusterBreak;
 
 const typeTrie = new UnicodeTrie(toUint8Array(typeTrieB64));
 const extPict = new UnicodeTrie(toUint8Array(extPictB64));
-// const typeTrie = { get: () => void 0 };
-// const extPict = { get: (str) => void 0 };
 function is(type, bit) {
     return (type & bit) !== 0;
 }
