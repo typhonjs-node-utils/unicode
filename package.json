@@ -1,0 +1,47 @@
+{
+  "name": "@typhonjs-svelte/unicode",
+  "version": "0.0.0",
+  "description": "Provides tools for working w/ Unicode including grapheme splitting & iteration.",
+  "license": "MPL-2.0",
+  "type": "module",
+  "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
+  "contributors": [
+    "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
+  ],
+  "sideEffects": false,
+  "imports": {
+    "#runtime/*": "@typhonjs-svelte/runtime-base/*"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.1",
+    "@typhonjs-svelte/runtime-base": "github:/typhonjs-svelte/runtime-base",
+    "@vitest/coverage-c8": "^0.31.1",
+    "@vitest/ui": "^0.31.1",
+    "rollup": "^3.23.0",
+    "rollup-plugin-dts": "^5.3.0",
+    "tslib": "^2.5.2",
+    "typescript" : "^5.0.4",
+    "unicode-trie": "^2.0.0",
+    "vitest": "^0.31.1"
+  },
+  "files": [
+    "/dist",
+    "/src"
+  ],
+  "browserslist": [">5%", "not IE 11"],
+  "scripts": {
+    "rollup": "rollup -c",
+    "eslint": "eslint .",
+    "prepublishOnly": "npm run eslint && npm run build && npm run test",
+    "test": "vitest --coverage",
+    "test-ui": "vitest --ui --coverage",
+    "coverage": "vitest run --coverage",
+    "benchmark": "node --expose-gc ./node_modules/vitest/vitest.mjs bench"
+  }
+}

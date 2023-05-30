@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "baseUrl": ".",
+
+    "sourceMap": true,
+    "inlineSources": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+
+    "types": ["vitest/globals"]
+  },
+
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules/*"],
+}

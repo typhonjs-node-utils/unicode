@@ -1,0 +1,4 @@
+.dts/
+.github/
+# *.d.ts
+dist/
