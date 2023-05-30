@@ -308,8 +308,8 @@ function* graphemeIterator(str) {
 //       if (size === ts.length)
 //       {
 //          const cluster = str.slice(start, i);
-//          if (buffer && !(unicodeProperty & UnicodeProperty.ZWJ) && !(lastUnicodeProperty & UnicodeProperty.ZWJ) &&
-//           !(unicodeProperty & UnicodeProperty.Extend) && !(lastUnicodeProperty & UnicodeProperty.Extend)) {
+//          if (buffer && !(unicodeProperty & ClusterBreak.ZWJ) && !(lastUnicodeProperty & ClusterBreak.ZWJ) &&
+//           !(unicodeProperty & ClusterBreak.Extend) && !(lastUnicodeProperty & ClusterBreak.Extend)) {
 //             yield buffer;
 //             buffer = "";
 //          }

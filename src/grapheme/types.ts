@@ -1,4 +1,8 @@
-export enum UnicodeProperty {
+/**
+ *
+ * @see https://www.unicode.org/reports/tr29/#Default_Grapheme_Cluster_Table
+ */
+export enum ClusterBreak {
    Other = 0,
    CR = 1 << 0,
    LF = 1 << 1,

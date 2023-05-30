@@ -5,7 +5,7 @@ import { UnicodeTrie }     from '../../unicode-trie'
 import { typeTrieB64 }     from './typeTrieB64';
 import { extPictB64 }      from './extPictB64';
 
-import { UnicodeProperty } from '../types';
+import { ClusterBreak } from '../types';
 
 const typeTrie = new UnicodeTrie(toUint8Array(typeTrieB64));
 const extPict = new UnicodeTrie(toUint8Array(extPictB64));
@@ -37,14 +37,14 @@ function nextGraphemeClusterSize(ts, start)
       const next = ts[i + 1];
 
       // for GB12, GB13
-      if (!is(curr, UnicodeProperty.Regional_Indicator)) { ri = 0; }
+      if (!is(curr, ClusterBreak.Regional_Indicator)) { ri = 0; }
 
       // for GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
       switch (gb11State)
       {
          case GB11State.NotBoundary:
          case GB11State.Initial:
-            if (is(curr, UnicodeProperty.Extended_Pictographic))
+            if (is(curr, ClusterBreak.Extended_Pictographic))
             {
                gb11State = GB11State.ExtendOrZWJ;
             }
@@ -55,11 +55,11 @@ function nextGraphemeClusterSize(ts, start)
             break;
 
          case GB11State.ExtendOrZWJ:
-            if (is(curr, UnicodeProperty.Extend))
+            if (is(curr, ClusterBreak.Extend))
             {
                gb11State = GB11State.ExtendOrZWJ;
             }
-            else if (is(curr, UnicodeProperty.ZWJ) && is(next, UnicodeProperty.Extended_Pictographic))
+            else if (is(curr, ClusterBreak.ZWJ) && is(next, ClusterBreak.Extended_Pictographic))
             {
                gb11State = GB11State.NotBoundary;
             }
@@ -71,45 +71,45 @@ function nextGraphemeClusterSize(ts, start)
       }
 
       // GB3: CR x LF
-      if (is(curr, UnicodeProperty.CR) && is(next, UnicodeProperty.LF)) { continue; }
+      if (is(curr, ClusterBreak.CR) && is(next, ClusterBreak.LF)) { continue; }
 
       // GB4: (Control | CR | LF) ÷
-      if (is(curr, UnicodeProperty.Control | UnicodeProperty.CR | UnicodeProperty.LF)) { return i + 1 - start; }
+      if (is(curr, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
 
       // GB5: ÷ (Control | CR | LF)
-      if (is(next, UnicodeProperty.Control | UnicodeProperty.CR | UnicodeProperty.LF)) { return i + 1 - start; }
+      if (is(next, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
 
       // GB6: L x (L | V | LV | LVT)
-      if (is(curr, UnicodeProperty.L) &&
-       is(next, UnicodeProperty.L | UnicodeProperty.V | UnicodeProperty.LV | UnicodeProperty.LVT))
+      if (is(curr, ClusterBreak.L) &&
+       is(next, ClusterBreak.L | ClusterBreak.V | ClusterBreak.LV | ClusterBreak.LVT))
       {
          continue;
       }
 
       // GB7: (LV | V) x (V | T)
-      if (is(curr, UnicodeProperty.LV | UnicodeProperty.V) && is(next, UnicodeProperty.V | UnicodeProperty.T))
+      if (is(curr, ClusterBreak.LV | ClusterBreak.V) && is(next, ClusterBreak.V | ClusterBreak.T))
       {
          continue;
       }
 
       // GB8: (LVT | T) x T
-      if (is(curr, UnicodeProperty.LVT | UnicodeProperty.T) && is(next, UnicodeProperty.T)) { continue; }
+      if (is(curr, ClusterBreak.LVT | ClusterBreak.T) && is(next, ClusterBreak.T)) { continue; }
 
       // GB9: x (Extend | ZWJ)
-      if (is(next, UnicodeProperty.Extend | UnicodeProperty.ZWJ)) { continue; }
+      if (is(next, ClusterBreak.Extend | ClusterBreak.ZWJ)) { continue; }
 
       // GB9a: x SpacingMark
-      if (is(next, UnicodeProperty.SpacingMark)) { continue; }
+      if (is(next, ClusterBreak.SpacingMark)) { continue; }
 
       // GB9b: Prepend x
-      if (is(curr, UnicodeProperty.Prepend)) { continue; }
+      if (is(curr, ClusterBreak.Prepend)) { continue; }
 
       // GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
       if (gb11State === GB11State.NotBoundary) { continue; }
 
       // GB12: sot (RI RI)* RI x RI
       // GB13: [^RI] (RI RI)* RI x RI
-      if (is(curr, UnicodeProperty.Regional_Indicator) && is(next, UnicodeProperty.Regional_Indicator) && ri % 2 === 0)
+      if (is(curr, ClusterBreak.Regional_Indicator) && is(next, ClusterBreak.Regional_Indicator) && ri % 2 === 0)
       {
          ri++;
          continue;
@@ -188,8 +188,8 @@ export function* graphemeIterator(str: string): Generator<string>
 //       if (size === ts.length)
 //       {
 //          const cluster = str.slice(start, i);
-//          if (buffer && !(unicodeProperty & UnicodeProperty.ZWJ) && !(lastUnicodeProperty & UnicodeProperty.ZWJ) &&
-//           !(unicodeProperty & UnicodeProperty.Extend) && !(lastUnicodeProperty & UnicodeProperty.Extend)) {
+//          if (buffer && !(unicodeProperty & ClusterBreak.ZWJ) && !(lastUnicodeProperty & ClusterBreak.ZWJ) &&
+//           !(unicodeProperty & ClusterBreak.Extend) && !(lastUnicodeProperty & ClusterBreak.Extend)) {
 //             yield buffer;
 //             buffer = "";
 //          }
