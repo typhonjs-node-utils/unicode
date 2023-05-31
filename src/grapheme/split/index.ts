@@ -7,118 +7,144 @@ import { extPictB64 }      from './extPictB64';
 
 import { ClusterBreak } from '../types';
 
-const typeTrie = new UnicodeTrie(toUint8Array(typeTrieB64));
-const extPict = new UnicodeTrie(toUint8Array(extPictB64));
-
-function is(type, bit)
+class GraphemeSplitHelper
 {
-   return (type & bit) !== 0;
-}
+   static #typeTrie: UnicodeTrie;
+   static #extPict: UnicodeTrie;
 
-const GB11State = {
-   Initial: 0,
-   ExtendOrZWJ: 1,
-   NotBoundary: 2,
-};
+   static #isLoaded: boolean = false;
 
-function nextGraphemeClusterSize(ts, start)
-{
-   const L = ts.length;
+   static readonly GB11State = {
+      Initial: 0,
+      ExtendOrZWJ: 1,
+      NotBoundary: 2,
+   };
 
-   let ri = 0;
-   let gb11State = GB11State.Initial;
-
-   // GB1: sot ÷ Any
-   for (let i = start; i + 1 < L; i++)
+   static checkLoadData()
    {
-      const curr = ts[i + 0];
-      const next = ts[i + 1];
-
-      // for GB12, GB13
-      if (!is(curr, ClusterBreak.Regional_Indicator)) { ri = 0; }
-
-      // for GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
-      switch (gb11State)
+      if (!this.#isLoaded)
       {
-         case GB11State.NotBoundary:
-         case GB11State.Initial:
-            if (is(curr, ClusterBreak.Extended_Pictographic))
-            {
-               gb11State = GB11State.ExtendOrZWJ;
-            }
-            else
-            {
-               gb11State = GB11State.Initial;
-            }
-            break;
+         this.#typeTrie = new UnicodeTrie(toUint8Array(typeTrieB64));
+         this.#extPict = new UnicodeTrie(toUint8Array(extPictB64));
 
-         case GB11State.ExtendOrZWJ:
-            if (is(curr, ClusterBreak.Extend))
-            {
-               gb11State = GB11State.ExtendOrZWJ;
-            }
-            else if (is(curr, ClusterBreak.ZWJ) && is(next, ClusterBreak.Extended_Pictographic))
-            {
-               gb11State = GB11State.NotBoundary;
-            }
-            else
-            {
-               gb11State = GB11State.Initial;
-            }
-            break;
+         this.#isLoaded = true;
       }
-
-      // GB3: CR x LF
-      if (is(curr, ClusterBreak.CR) && is(next, ClusterBreak.LF)) { continue; }
-
-      // GB4: (Control | CR | LF) ÷
-      if (is(curr, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
-
-      // GB5: ÷ (Control | CR | LF)
-      if (is(next, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
-
-      // GB6: L x (L | V | LV | LVT)
-      if (is(curr, ClusterBreak.L) &&
-       is(next, ClusterBreak.L | ClusterBreak.V | ClusterBreak.LV | ClusterBreak.LVT))
-      {
-         continue;
-      }
-
-      // GB7: (LV | V) x (V | T)
-      if (is(curr, ClusterBreak.LV | ClusterBreak.V) && is(next, ClusterBreak.V | ClusterBreak.T))
-      {
-         continue;
-      }
-
-      // GB8: (LVT | T) x T
-      if (is(curr, ClusterBreak.LVT | ClusterBreak.T) && is(next, ClusterBreak.T)) { continue; }
-
-      // GB9: x (Extend | ZWJ)
-      if (is(next, ClusterBreak.Extend | ClusterBreak.ZWJ)) { continue; }
-
-      // GB9a: x SpacingMark
-      if (is(next, ClusterBreak.SpacingMark)) { continue; }
-
-      // GB9b: Prepend x
-      if (is(curr, ClusterBreak.Prepend)) { continue; }
-
-      // GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
-      if (gb11State === GB11State.NotBoundary) { continue; }
-
-      // GB12: sot (RI RI)* RI x RI
-      // GB13: [^RI] (RI RI)* RI x RI
-      if (is(curr, ClusterBreak.Regional_Indicator) && is(next, ClusterBreak.Regional_Indicator) && ri % 2 === 0)
-      {
-         ri++;
-         continue;
-      }
-
-      // GB999: Any ÷ Any
-      return i + 1 - start;
    }
 
-   // GB2: Any ÷ eot
-   return L - start;
+   /**
+    * Returns the `OR` result of lookups from `typeTrie` and `extPict`
+    * @param codePoint
+    */
+   static get(codePoint: number)
+   {
+      return this.#typeTrie.get(codePoint) | this.#extPict.get(codePoint);
+   }
+
+   static is(type, bit)
+   {
+      return (type & bit) !== 0;
+   }
+
+   static nextGraphemeClusterSize(ts, start)
+   {
+      const L = ts.length;
+
+      let ri = 0;
+      let gb11State = this.GB11State.Initial;
+
+      // GB1: sot ÷ Any
+      for (let i = start; i + 1 < L; i++)
+      {
+         const curr = ts[i + 0];
+         const next = ts[i + 1];
+
+         // for GB12, GB13
+         if (!this.is(curr, ClusterBreak.Regional_Indicator)) { ri = 0; }
+
+         // for GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
+         switch (gb11State)
+         {
+            case this.GB11State.NotBoundary:
+            case this.GB11State.Initial:
+               if (this.is(curr, ClusterBreak.Extended_Pictographic))
+               {
+                  gb11State = this.GB11State.ExtendOrZWJ;
+               }
+               else
+               {
+                  gb11State = this.GB11State.Initial;
+               }
+               break;
+
+            case this.GB11State.ExtendOrZWJ:
+               if (this.is(curr, ClusterBreak.Extend))
+               {
+                  gb11State = this.GB11State.ExtendOrZWJ;
+               }
+               else if (this.is(curr, ClusterBreak.ZWJ) && this.is(next, ClusterBreak.Extended_Pictographic))
+               {
+                  gb11State = this.GB11State.NotBoundary;
+               }
+               else
+               {
+                  gb11State = this.GB11State.Initial;
+               }
+               break;
+         }
+
+         // GB3: CR x LF
+         if (this.is(curr, ClusterBreak.CR) && this.is(next, ClusterBreak.LF)) { continue; }
+
+         // GB4: (Control | CR | LF) ÷
+         if (this.is(curr, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
+
+         // GB5: ÷ (Control | CR | LF)
+         if (this.is(next, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
+
+         // GB6: L x (L | V | LV | LVT)
+         if (this.is(curr, ClusterBreak.L) &&
+          this.is(next, ClusterBreak.L | ClusterBreak.V | ClusterBreak.LV | ClusterBreak.LVT))
+         {
+            continue;
+         }
+
+         // GB7: (LV | V) x (V | T)
+         if (this.is(curr, ClusterBreak.LV | ClusterBreak.V) && this.is(next, ClusterBreak.V | ClusterBreak.T))
+         {
+            continue;
+         }
+
+         // GB8: (LVT | T) x T
+         if (this.is(curr, ClusterBreak.LVT | ClusterBreak.T) && this.is(next, ClusterBreak.T)) { continue; }
+
+         // GB9: x (Extend | ZWJ)
+         if (this.is(next, ClusterBreak.Extend | ClusterBreak.ZWJ)) { continue; }
+
+         // GB9a: x SpacingMark
+         if (this.is(next, ClusterBreak.SpacingMark)) { continue; }
+
+         // GB9b: Prepend x
+         if (this.is(curr, ClusterBreak.Prepend)) { continue; }
+
+         // GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
+         if (gb11State === this.GB11State.NotBoundary) { continue; }
+
+         // GB12: sot (RI RI)* RI x RI
+         // GB13: [^RI] (RI RI)* RI x RI
+         if (this.is(curr, ClusterBreak.Regional_Indicator) && this.is(next, ClusterBreak.Regional_Indicator) &&
+          ri % 2 === 0)
+         {
+            ri++;
+            continue;
+         }
+
+         // GB999: Any ÷ Any
+         return i + 1 - start;
+      }
+
+      // GB2: Any ÷ eot
+      return L - start;
+   }
 }
 
 /**
@@ -128,6 +154,8 @@ function nextGraphemeClusterSize(ts, start)
  */
 export function graphemeSplit(str: string): string[]
 {
+   GraphemeSplitHelper.checkLoadData();
+
    const graphemeClusters = [];
 
    const map = [0];
@@ -136,14 +164,14 @@ export function graphemeSplit(str: string): string[]
    for (let i = 0; i < str.length;)
    {
       const code = str.codePointAt(i);
-      ts.push(typeTrie.get(code) | extPict.get(code));
+      ts.push(GraphemeSplitHelper.get(code));
       i += code > 65535 ? 2 : 1;
       map.push(i);
    }
 
    for (let offset = 0; offset < ts.length;)
    {
-      const size = nextGraphemeClusterSize(ts, offset);
+      const size = GraphemeSplitHelper.nextGraphemeClusterSize(ts, offset);
       const start = map[offset];
       const end = map[offset + size];
       graphemeClusters.push(str.slice(start, end));
@@ -161,10 +189,7 @@ export function graphemeSplit(str: string): string[]
  */
 export function* graphemeIterator(str: string): IterableIterator<string>
 {
-   for (const grapheme of graphemeSplit(str))
-   {
-      yield grapheme;
-   }
+   for (const grapheme of graphemeSplit(str)) { yield grapheme; }
 }
 
 // // An experimental attempt to create a generator / iterator.
