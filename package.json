@@ -17,7 +17,7 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.js"
     },
-    "./unicode-trie": {
+    "./trie": {
       "types": "./dist/unicode-trie/index.d.mts",
       "import": "./dist/unicode-trie/index.js"
     },
