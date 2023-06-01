@@ -2,7 +2,7 @@ import fs            from 'node:fs';
 
 import {
    graphemeIterator,
-   graphemeSplit }   from '../../src';
+   graphemeSplit }   from '../../src/grapheme';
 
 describe('Grapheme API Tests', () =>
 {

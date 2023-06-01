@@ -1,6 +1,6 @@
 import {
    UnicodeTrieBuilder,
-   UnicodeTrie }        from '../../src';
+   UnicodeTrie }        from '../../src/unicode-trie';
 
 describe('unicode trie', () =>
 {
