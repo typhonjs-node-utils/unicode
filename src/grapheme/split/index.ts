@@ -7,6 +7,9 @@ import { UAX29 }           from '../types';
 import { UNICODE_GRAPHEME_B64_TYPE_TRIE }       from './UNICODE_GRAPHEME_B64_TYPE_TRIE';
 import { UNICODE_GRAPHEME_B64_EXT_PICT_TRIE }   from './UNICODE_GRAPHEME_B64_EXT_PICT_TRIE';
 
+/**
+ * Provides internal support for lazy loading of Unicode trie data and essential lookups.
+ */
 class GraphemeSplitHelper
 {
    static #typeTrie: UnicodeTrie;
@@ -32,20 +35,37 @@ class GraphemeSplitHelper
    }
 
    /**
-    * Returns the `OR` result of lookups from `typeTrie` and `extPict`
-    * @param codePoint
+    * Returns the `OR` result of lookups from `typeTrie` and `extPict`.
+    *
+    * @param {number}   codePoint - A Unicode code point to lookup.
+    *
+    * @returns {number} Code point meta-data.
     */
-   static get(codePoint: number)
+   static get(codePoint: number): number
    {
       return this.#typeTrie.get(codePoint) | this.#extPict.get(codePoint);
    }
 
-   static is(type, bit)
+   /**
+    * Helper function to test stored code point types.
+    *
+    * @param {number}   type - Code point type.
+    *
+    * @param {number}   bit - ClusterBreak to test against.
+    */
+   static is(type: number, bit: number)
    {
       return (type & bit) !== 0;
    }
 
-   static nextGraphemeClusterSize(ts, start)
+   /**
+    * Analyzes the next grapheme cluster size from a pre-parsed string of code point types.
+    *
+    * @param {number[]}   ts - Code point types.
+    *
+    * @param {number}   start -
+    */
+   static nextGraphemeClusterSize(ts: number[], start: number)
    {
       const CB = UAX29.ClusterBreak;
 
@@ -57,7 +77,7 @@ class GraphemeSplitHelper
       // GB1: sot ÷ Any
       for (let i = start; i + 1 < L; i++)
       {
-         const curr = ts[i + 0];
+         const curr = ts[i];
          const next = ts[i + 1];
 
          // for GB12, GB13
@@ -142,6 +162,8 @@ class GraphemeSplitHelper
 }
 
 /**
+ * Splits the given string into an array of Unicode grapheme clusters.
+ *
  * @param {string}   str - String to split.
  *
  * @returns {string[]} The string split by Unicode grapheme clusters.
@@ -176,6 +198,12 @@ export function graphemeSplit(str: string): string[]
 }
 
 /**
+ * Provides an iterator for tokenizing a string by grapheme clusters.
+ *
+ * Note: This is a naive implementation that fully parses the string then returns the iterator over parsed clusters.
+ * A future implementation will implement an immediate mode parser returning cluster by cluster as the string is
+ * parsed.
+ *
  * @param {string}   str - String to split.
  *
  * @returns {IterableIterator<string>} An iterator returning grapheme clusters.
