@@ -403,8 +403,9 @@ export class UnicodeTrieBuilder
    }
 
    /**
-    * Generates a Buffer containing the serialized and compressed trie.
-    * Trie data is compressed twice using the deflate algorithm to minimize file size.
+    * Generates a Node Buffer containing the serialized and compressed trie.
+    *
+    * Note: This only works on Node. Use toUint8Array otherwise.
     *
     * uint32_t highStart;
     * uint32_t errorValue;
@@ -433,6 +434,41 @@ export class UnicodeTrieBuilder
       for (let i = 0; i < compressed.length; i++) { buf[i + 12] = compressed[i]; }
 
       return buf;
+   }
+
+   /**
+    * Generates a packed Uint8Array containing the serialized and compressed trie.
+    *
+    * Note: This only works on Node. Use toUint8Array otherwise.
+    *
+    * uint32_t highStart;
+    * uint32_t errorValue;
+    * uint32_t uncompressedDataLength;
+    * uint8_t trieData[dataLength];
+    *
+    * @returns {Uint8Array} A packed Uint8Array.
+    */
+   toUint8Array(): Uint8Array
+   {
+      const trie = this.freeze();
+
+      const data = new Uint8Array(trie.data.buffer);
+
+      // Swap bytes to little-endian
+      Swap32LE.swap(data);
+
+      let compressed = deflateSync(data);
+
+      const output = new Uint8Array(compressed.length + 12);
+
+      const view = new DataView(output.buffer);
+      view.setUint32(0, trie.highStart, true);
+      view.setUint32(4, trie.errorValue, true);
+      view.setUint32(8, data.length, true);
+
+      output.set(compressed, 12);
+
+      return output;
    }
 
    // Internal -------------------------------------------------------------------------------------------------------

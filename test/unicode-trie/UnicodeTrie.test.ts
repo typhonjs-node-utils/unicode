@@ -66,7 +66,19 @@ describe('unicode trie', () =>
 
       const bufferExpected = Buffer.from([0, 72, 0, 0, 0, 0, 0, 0, 128, 36, 0, 0, 237, 206, 49, 10, 192, 32, 12, 64, 81, 233, 212, 177, 99, 199, 142, 189, 69, 123, 23, 47, 234, 209, 12, 136, 179, 163, 130, 239, 195, 35, 100, 74, 174, 35, 165, 59, 60, 225, 13, 125, 223, 105, 2, 0, 235, 250, 22, 248, 1, 0, 0, 0, 0, 0, 24, 43, 103, 243, 79, 34, 169, 149, 39, 220, 172]);
 
-      assert.equal(buf.toString('hex'), bufferExpected.toString('hex'));
+      assert.deepEqual(buf, bufferExpected);
+   });
+
+   it('toUint8Array written in little-endian', () =>
+   {
+      const trie = new UnicodeTrieBuilder();
+      trie.set(0x4567, 99);
+
+      const data = trie.toUint8Array();
+
+      const dataExpected = new Uint8Array([0, 72, 0, 0, 0, 0, 0, 0, 128, 36, 0, 0, 237, 206, 49, 10, 192, 32, 12, 64, 81, 233, 212, 177, 99, 199, 142, 189, 69, 123, 23, 47, 234, 209, 12, 136, 179, 163, 130, 239, 195, 35, 100, 74, 174, 35, 165, 59, 60, 225, 13, 125, 223, 105, 2, 0, 235, 250, 22, 248, 1, 0, 0, 0, 0, 0, 24, 43, 103, 243, 79, 34, 169, 149, 39, 220, 172]);
+
+      assert.deepEqual(data, dataExpected);
    });
 
    it('should work with compressed serialization format', () =>
