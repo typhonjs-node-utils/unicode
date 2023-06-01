@@ -11,14 +11,17 @@ export class UnicodeTrie
 
    readonly #highStart: number;
 
-   constructor(data)
+   /**
+    *
+    * @param {Uint8Array} data -
+    */
+   // constructor(data: { data: Uint32Array, highStart: number, errorValue: number } | Uint8Array & { readUInt32LE?: Function })
+   constructor(data: any)
    {
-      const isBuffer = (typeof data.readUInt32BE === 'function') && (typeof data.slice === 'function');
-
-      if (isBuffer || data instanceof Uint8Array)
+      if (data instanceof Uint8Array || typeof data.readUInt32LE === 'function')
       {
-         // read binary format
-         if (isBuffer)
+         // Is Node Buffer read binary format.
+         if (typeof data.readUInt32LE === 'function')
          {
             this.#highStart = data.readUInt32LE(0);
             this.#errorValue = data.readUInt32LE(4);
@@ -34,13 +37,9 @@ export class UnicodeTrie
 
          // Double inflate the actual trie data.
          data = inflateSync(data);
-         data = inflateSync(data);
 
          // Swap bytes from little-endian.
          Swap32LE.swap(data);
-
-// console.log(`!!! UnicodeTrie - ctor - 0 - data.buffer length: ${data.buffer.length}; length % 4: ${data.buffer.length % 4}`)
-console.log(`!!! UnicodeTrie - ctor - 0 - data: `, data)
 
          this.#data = new Uint32Array(data.buffer);
       }

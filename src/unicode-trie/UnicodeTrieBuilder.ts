@@ -423,27 +423,14 @@ export class UnicodeTrieBuilder
       Swap32LE.swap(data);
 
       let compressed = deflateSync(data);
-      compressed = deflateSync(compressed);
-
-      // Pad the compressed data to ensure it's a multiple of 4
-      // while (compressed.length % 4 !== 0) {
-      //    compressed = Buffer.concat([compressed, Buffer.from([0])]);
-      // }
-
-console.log(`!! UnicodeTrieBuilder - toBuffer - compressed length: `, compressed.length);
 
       const buf = Buffer.alloc(compressed.length + 12);
       buf.writeUInt32LE(trie.highStart, 0);
       buf.writeUInt32LE(trie.errorValue, 4);
       buf.writeUInt32LE(data.length, 8);
-      for (let i = 0; i < compressed.length; i++)
-      {
-         const b = compressed[i];
-         buf[i + 12] = b;
-      }
 
-console.log(`!! UnicodeTrieBuilder - toBuffer - buffer length: `, buf.length);
-
+      // Copy compressed data after header.
+      for (let i = 0; i < compressed.length; i++) { buf[i + 12] = compressed[i]; }
 
       return buf;
    }
