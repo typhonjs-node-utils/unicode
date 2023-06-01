@@ -13,6 +13,7 @@ export class Swap32LE
     */
    static swap(array: Uint8Array | Uint32Array)
    {
+      /* c8 ignore next */
       if (this.#isBigEndian) { this.#swap32(array); }
 
       return array;
@@ -20,6 +21,7 @@ export class Swap32LE
 
    static #isBigEndian: boolean = (new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x12);
 
+   /* c8 ignore next 6 */
    static #swap(b, n, m)
    {
       const i = b[n];
@@ -27,6 +29,7 @@ export class Swap32LE
       b[m] = i;
    }
 
+   /* c8 ignore next 10 */
    static #swap32(array: Uint8Array | Uint32Array)
    {
       const len = array.length;
