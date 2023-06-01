@@ -171,7 +171,7 @@ export class UnicodeTrieBuilder
 
       // calculate the sizes of, and allocate, the index and data arrays
       const indexLength = allIndexesLength + this.#dataLength;
-      const data = new Int32Array(indexLength);
+      const data = new Uint32Array(indexLength);
 
       // write the index-2 array values shifted right by INDEX_SHIFT, after adding dataMove
       let destIdx = 0;
@@ -221,9 +221,9 @@ export class UnicodeTrieBuilder
    }
 
    /**
-    * @param {number}   codePoint -
+    * @param {number}   codePoint - Code point to lookup.
     *
-    * @param {boolean}  [fromLSCP=true] -
+    * @param {boolean}  [fromLSCP=true] - Is this a lead surrogate code point.
     */
    get(codePoint: number, fromLSCP?: boolean)
    {

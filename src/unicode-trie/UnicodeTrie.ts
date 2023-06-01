@@ -3,6 +3,14 @@ import { inflateSync }     from '#runtime/data/compress';
 import { Const }           from './Constants';
 import { Swap32LE }        from './Swap32LE';
 
+import type {
+   UnicodeTrieParsedData,
+   UnicodeTrieRawData }    from './types';
+
+/**
+ * Provides lookup in a pre-built UnicodeTrie data structure. Use {@link UnicodeTrieBuilder} for building /
+ * serialization of a pre-built data structure.
+ */
 export class UnicodeTrie
 {
    readonly #data: Uint32Array;
@@ -12,13 +20,11 @@ export class UnicodeTrie
    readonly #highStart: number;
 
    /**
-    *
-    * @param {Uint8Array} data -
+    * @param {UnicodeTrieParsedData | UnicodeTrieRawData} data -
     */
-   // constructor(data: { data: Uint32Array, highStart: number, errorValue: number } | Uint8Array & { readUInt32LE?: Function })
-   constructor(data: any)
+   constructor(data: UnicodeTrieParsedData | UnicodeTrieRawData)
    {
-      if (data instanceof Uint8Array || typeof data.readUInt32LE === 'function')
+      if (data instanceof Uint8Array)
       {
          // Is Node Buffer read binary format.
          if (typeof data.readUInt32LE === 'function')
@@ -53,19 +59,22 @@ export class UnicodeTrie
    /**
     * @returns {Uint32Array} The data array.
     */
-   get data() { return this.#data; }
+   get data(): Uint32Array { return this.#data; }
 
    /**
     * @returns {number} The error value.
     */
-   get errorValue() { return this.#errorValue; }
+   get errorValue(): number { return this.#errorValue; }
 
    /**
     * @returns {number} The high start.
     */
-   get highStart() { return this.#highStart; }
+   get highStart(): number { return this.#highStart; }
 
-   get(codePoint)
+   /**
+    * @param {number}   codePoint -
+    */
+   get(codePoint: number)
    {
       if ((codePoint < 0) || (codePoint > 0x10ffff)) { return this.#errorValue; }
 
@@ -94,7 +103,8 @@ export class UnicodeTrie
          return this.#data[index];
       }
 
-      if (codePoint < this.#highStart) {
+      if (codePoint < this.#highStart)
+      {
          // Supplemental code point, use two-level lookup.
          index = this.#data[(Const.INDEX_1_OFFSET - Const.OMITTED_BMP_INDEX_1_LENGTH) + (codePoint >> Const.SHIFT_1)];
 

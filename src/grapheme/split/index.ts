@@ -2,11 +2,10 @@ import { toUint8Array }    from '#runtime/data/format/base64';
 
 import { UnicodeTrie }     from '../../unicode-trie'
 
-import { ClusterBreak }    from '../types';
+import { UAX29 }           from '../types';
 
 import { UNICODE_GRAPHEME_B64_TYPE_TRIE }       from './UNICODE_GRAPHEME_B64_TYPE_TRIE';
 import { UNICODE_GRAPHEME_B64_EXT_PICT_TRIE }   from './UNICODE_GRAPHEME_B64_EXT_PICT_TRIE';
-
 
 class GraphemeSplitHelper
 {
@@ -48,6 +47,8 @@ class GraphemeSplitHelper
 
    static nextGraphemeClusterSize(ts, start)
    {
+      const CB = UAX29.ClusterBreak;
+
       const L = ts.length;
 
       let ri = 0;
@@ -60,14 +61,14 @@ class GraphemeSplitHelper
          const next = ts[i + 1];
 
          // for GB12, GB13
-         if (!this.is(curr, ClusterBreak.Regional_Indicator)) { ri = 0; }
+         if (!this.is(curr, CB.Regional_Indicator)) { ri = 0; }
 
          // for GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
          switch (gb11State)
          {
             case this.GB11State.NotBoundary:
             case this.GB11State.Initial:
-               if (this.is(curr, ClusterBreak.Extended_Pictographic))
+               if (this.is(curr, CB.Extended_Pictographic))
                {
                   gb11State = this.GB11State.ExtendOrZWJ;
                }
@@ -78,11 +79,11 @@ class GraphemeSplitHelper
                break;
 
             case this.GB11State.ExtendOrZWJ:
-               if (this.is(curr, ClusterBreak.Extend))
+               if (this.is(curr, CB.Extend))
                {
                   gb11State = this.GB11State.ExtendOrZWJ;
                }
-               else if (this.is(curr, ClusterBreak.ZWJ) && this.is(next, ClusterBreak.Extended_Pictographic))
+               else if (this.is(curr, CB.ZWJ) && this.is(next, CB.Extended_Pictographic))
                {
                   gb11State = this.GB11State.NotBoundary;
                }
@@ -94,46 +95,38 @@ class GraphemeSplitHelper
          }
 
          // GB3: CR x LF
-         if (this.is(curr, ClusterBreak.CR) && this.is(next, ClusterBreak.LF)) { continue; }
+         if (this.is(curr, CB.CR) && this.is(next, CB.LF)) { continue; }
 
          // GB4: (Control | CR | LF) ÷
-         if (this.is(curr, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
+         if (this.is(curr, CB.Control | CB.CR | CB.LF)) { return i + 1 - start; }
 
          // GB5: ÷ (Control | CR | LF)
-         if (this.is(next, ClusterBreak.Control | ClusterBreak.CR | ClusterBreak.LF)) { return i + 1 - start; }
+         if (this.is(next, CB.Control | CB.CR | CB.LF)) { return i + 1 - start; }
 
          // GB6: L x (L | V | LV | LVT)
-         if (this.is(curr, ClusterBreak.L) &&
-          this.is(next, ClusterBreak.L | ClusterBreak.V | ClusterBreak.LV | ClusterBreak.LVT))
-         {
-            continue;
-         }
+         if (this.is(curr, CB.L) && this.is(next, CB.L | CB.V | CB.LV | CB.LVT)) { continue; }
 
          // GB7: (LV | V) x (V | T)
-         if (this.is(curr, ClusterBreak.LV | ClusterBreak.V) && this.is(next, ClusterBreak.V | ClusterBreak.T))
-         {
-            continue;
-         }
+         if (this.is(curr, CB.LV | CB.V) && this.is(next, CB.V | CB.T)) { continue; }
 
          // GB8: (LVT | T) x T
-         if (this.is(curr, ClusterBreak.LVT | ClusterBreak.T) && this.is(next, ClusterBreak.T)) { continue; }
+         if (this.is(curr, CB.LVT | CB.T) && this.is(next, CB.T)) { continue; }
 
          // GB9: x (Extend | ZWJ)
-         if (this.is(next, ClusterBreak.Extend | ClusterBreak.ZWJ)) { continue; }
+         if (this.is(next, CB.Extend | CB.ZWJ)) { continue; }
 
          // GB9a: x SpacingMark
-         if (this.is(next, ClusterBreak.SpacingMark)) { continue; }
+         if (this.is(next, CB.SpacingMark)) { continue; }
 
          // GB9b: Prepend x
-         if (this.is(curr, ClusterBreak.Prepend)) { continue; }
+         if (this.is(curr, CB.Prepend)) { continue; }
 
          // GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
          if (gb11State === this.GB11State.NotBoundary) { continue; }
 
          // GB12: sot (RI RI)* RI x RI
          // GB13: [^RI] (RI RI)* RI x RI
-         if (this.is(curr, ClusterBreak.Regional_Indicator) && this.is(next, ClusterBreak.Regional_Indicator) &&
-          ri % 2 === 0)
+         if (this.is(curr, CB.Regional_Indicator) && this.is(next, CB.Regional_Indicator) && ri % 2 === 0)
          {
             ri++;
             continue;
@@ -192,63 +185,3 @@ export function* graphemeIterator(str: string): IterableIterator<string>
 {
    for (const grapheme of graphemeSplit(str)) { yield grapheme; }
 }
-
-// // An experimental attempt to create a generator / iterator.
-// export function* graphemeIteratorExp(str: string): Generator<string>
-// {
-//    let i = 0;
-//    let start = 0;
-//    const ts = [];
-//    let buffer = "";
-//    let lastUnicodeProperty = 0;
-//
-//    while (i < str.length)
-//    {
-//       const code = str.codePointAt(i);
-//       const unicodeProperty = typeTrie.get(code) | extPict.get(code);
-//       ts.push(unicodeProperty);
-//       i += code > 65535 ? 2 : 1;
-//
-//       const size = nextGraphemeClusterSize(ts, 0);
-//       if (size === ts.length)
-//       {
-//          const cluster = str.slice(start, i);
-//          if (buffer && !(unicodeProperty & ClusterBreak.ZWJ) && !(lastUnicodeProperty & ClusterBreak.ZWJ) &&
-//           !(unicodeProperty & ClusterBreak.Extend) && !(lastUnicodeProperty & ClusterBreak.Extend)) {
-//             yield buffer;
-//             buffer = "";
-//          }
-//          buffer += cluster;
-//          start = i;
-//          ts.length = 0;
-//          lastUnicodeProperty = unicodeProperty;
-//       }
-//    }
-//
-//    if (buffer) { yield buffer; }
-// }
-
-// // A trivial iterator that splits on every cluster / doesn't handle compound cases.
-// export function* graphemeIteratorTrivial(str: string): Generator<string>
-// {
-//    let i = 0;
-//    let start = 0;
-//    const ts = [];
-//
-//    while (i < str.length)
-//    {
-//       const code = str.codePointAt(i);
-//       ts.push(typeTrie.get(code) | extPict.get(code));
-//       i += code > 65535 ? 2 : 1;
-//
-//       const size = nextGraphemeClusterSize(ts, 0);
-//       if (size === ts.length)
-//       {
-//          yield str.slice(start, i);
-//          start = i;
-//          ts.length = 0;
-//       }
-//    }
-//
-//    if (ts.length > 0) { yield str.slice(start, i); }
-// }
