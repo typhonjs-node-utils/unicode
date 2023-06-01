@@ -1,0 +1,66 @@
+// An experimental attempt to create a generator / iterator.
+export function* graphemeIteratorExp(str: string): Generator<string>
+{
+   let i = 0;
+   let start = 0;
+   const ts = [];
+   let buffer = '';
+   let lastUnicodeProperty = 0;
+   const CB = UAX29.ClusterBreak;
+
+   GraphemeSplitHelper.checkLoadData();
+
+   while (i < str.length)
+   {
+      const code = str.codePointAt(i);
+      const unicodeProperty = GraphemeSplitHelper.get(code);
+      ts.push(unicodeProperty);
+      i += code > 65535 ? 2 : 1;
+
+      const size = GraphemeSplitHelper.nextGraphemeClusterSize(ts, 0);
+
+      if (size === ts.length)
+      {
+         const cluster = str.slice(start, i);
+
+         if (buffer && !(unicodeProperty & CB.ZWJ) && !(lastUnicodeProperty & CB.ZWJ) &&
+          !(unicodeProperty & CB.Extend) && !(lastUnicodeProperty & CB.Extend))
+         {
+            yield buffer;
+            buffer = '';
+         }
+
+         buffer += cluster;
+         start = i;
+         ts.length = 0;
+         lastUnicodeProperty = unicodeProperty;
+      }
+   }
+
+   if (buffer) { yield buffer; }
+}
+
+// A trivial iterator that splits on every cluster / doesn't handle compound cases.
+export function* graphemeIteratorTrivial(str: string): Generator<string>
+{
+   let i = 0;
+   let start = 0;
+   const ts = [];
+
+   while (i < str.length)
+   {
+      const code = str.codePointAt(i);
+      ts.push(GraphemeSplitHelper.get(code));
+      i += code > 65535 ? 2 : 1;
+
+      const size = GraphemeSplitHelper.nextGraphemeClusterSize(ts, 0);
+      if (size === ts.length)
+      {
+         yield str.slice(start, i);
+         start = i;
+         ts.length = 0;
+      }
+   }
+
+   if (ts.length > 0) { yield str.slice(start, i); }
+}
