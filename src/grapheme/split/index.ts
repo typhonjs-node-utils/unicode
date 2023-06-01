@@ -2,10 +2,11 @@ import { toUint8Array }    from '#runtime/data/format/base64';
 
 import { UnicodeTrie }     from '../../unicode-trie'
 
-import { typeTrieB64 }     from './typeTrieB64';
-import { extPictB64 }      from './extPictB64';
+import { ClusterBreak }    from '../types';
 
-import { ClusterBreak } from '../types';
+import { UNICODE_GRAPHEME_B64_TYPE_TRIE }       from './UNICODE_GRAPHEME_B64_TYPE_TRIE';
+import { UNICODE_GRAPHEME_B64_EXT_PICT_TRIE }   from './UNICODE_GRAPHEME_B64_EXT_PICT_TRIE';
+
 
 class GraphemeSplitHelper
 {
@@ -24,8 +25,8 @@ class GraphemeSplitHelper
    {
       if (!this.#isLoaded)
       {
-         this.#typeTrie = new UnicodeTrie(toUint8Array(typeTrieB64));
-         this.#extPict = new UnicodeTrie(toUint8Array(extPictB64));
+         this.#typeTrie = new UnicodeTrie(toUint8Array(UNICODE_GRAPHEME_B64_TYPE_TRIE));
+         this.#extPict = new UnicodeTrie(toUint8Array(UNICODE_GRAPHEME_B64_EXT_PICT_TRIE));
 
          this.#isLoaded = true;
       }
