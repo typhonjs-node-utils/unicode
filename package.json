@@ -17,6 +17,10 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.js"
     },
+    "./unicode-trie": {
+      "types": "./dist/unicode-trie/index.d.mts",
+      "import": "./dist/unicode-trie/index.js"
+    },
     "./package.json": "./package.json"
   },
   "devDependencies": {
@@ -24,11 +28,12 @@
     "@typhonjs-svelte/runtime-base": "github:/typhonjs-svelte/runtime-base",
     "@vitest/coverage-c8": "^0.31.1",
     "@vitest/ui": "^0.31.1",
+    "split2": "^4.2.0",
     "rollup": "^3.23.0",
     "rollup-plugin-dts": "^5.3.0",
     "tslib": "^2.5.2",
+    "ts-node" : "^10.9.1",
     "typescript" : "^5.0.4",
-    "unicode-trie": "^2.0.0",
     "vitest": "^0.31.1"
   },
   "files": [
@@ -37,12 +42,12 @@
   ],
   "browserslist": [">5%", "not IE 11"],
   "scripts": {
-    "rollup": "rollup -c",
+    "build": "rollup -c",
     "eslint": "eslint .",
+    "generate-trie-data": "node src/grapheme/generate/generateOld.cjs",
     "prepublishOnly": "npm run eslint && npm run build && npm run test",
     "test": "vitest --coverage",
     "test-ui": "vitest --ui --coverage",
-    "coverage": "vitest run --coverage",
     "benchmark": "node --expose-gc ./node_modules/vitest/vitest.mjs bench"
   }
 }
