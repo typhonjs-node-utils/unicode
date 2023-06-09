@@ -114,7 +114,7 @@ export default () =>
             dts()
          ]
       },
-      {   // This bundle is for bundled types.
+      {
          input: 'src/unicode-trie/index.ts',
          output: [{
             file: `./dist-trl/unicode-trie/index.d.ts`,
