@@ -1,5 +1,7 @@
 .idea
 .DS_Store
 coverage/
+dist/
+dist-trl/
 html/
 node_modules/
