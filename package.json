@@ -10,22 +10,24 @@
   ],
   "sideEffects": false,
   "imports": {
-    "#runtime/*": "@typhonjs-svelte/runtime-base/*"
+    "#runtime/data/compress": "fflate",
+    "#runtime/data/format/base64": "js-base64"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./trie": {
-      "types": "./dist/unicode-trie/index.d.mts",
+      "types": "./dist/unicode-trie/index.d.ts",
       "import": "./dist/unicode-trie/index.js"
     },
     "./package.json": "./package.json"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve" : "^15.1.0",
+    "@rollup/plugin-replace": "^5.0.2",
     "@rollup/plugin-typescript": "^11.1.1",
-    "@typhonjs-svelte/runtime-base": "github:/typhonjs-svelte/runtime-base",
     "@vitest/coverage-c8": "^0.31.1",
     "@vitest/ui": "^0.31.1",
     "split2": "^4.2.0",
@@ -36,9 +38,13 @@
     "typescript" : "^5.0.4",
     "vitest": "^0.31.1"
   },
+  "peerDependencies" : {
+    "fflate" : ">=0.8.0",
+    "js-base64": ">=3.7.0"
+  },
   "files": [
     "/dist",
-    "/src"
+    "/dist-trl"
   ],
   "browserslist": [">5%", "not IE 11"],
   "scripts": {
