@@ -51,7 +51,7 @@
     "build": "rollup -c",
     "eslint": "eslint .",
     "generate-trie-data": "node src/grapheme/generate/generateOld.cjs",
-    "prepublishOnly": "npm run eslint && npm run build && npm run test",
+    "prepublishOnly": "npm run build && npm run test",
     "test": "vitest --coverage",
     "test-ui": "vitest --ui --coverage",
     "benchmark": "node --expose-gc ./node_modules/vitest/vitest.mjs bench"
