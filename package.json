@@ -1,7 +1,7 @@
 {
-  "name": "@typhonjs-svelte/unicode",
+  "name": "@typhonjs-utils/unicode",
   "version": "0.0.0",
-  "description": "Provides tools for working w/ Unicode including grapheme splitting & iteration.",
+  "description": "Provides tooling for working w/ Unicode including grapheme splitting & iteration.",
   "license": "MPL-2.0",
   "type": "module",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
@@ -47,14 +47,31 @@
     "/dist",
     "/dist-trl"
   ],
-  "browserslist": [">5%", "not IE 11"],
+  "keywords": [
+    "typhonjs",
+    "utils",
+    "unicode",
+    "grapheme",
+    "split"
+  ],
+  "typedocOptions": {
+    "dmtLinksService": {
+      "Discord": "https://typhonjs.io/discord/",
+      "GitHub": "https://github.com/typhonjs-node-utils/unicode",
+      "NPM": "https://www.npmjs.com/package/@typhonjs-utils/unicode"
+    }
+  },
+  "bugs": "https://github.com/typhonjs-node-utils/unicode/issues",
+  "homepage": "https://github.com/typhonjs-node-utils/unicode#readme",
+  "repository": "github:typhonjs-node-utils/unicode",
+  "apidocs": "https://typhonjs-node-utils.github.io/unicode/",
   "scripts": {
     "build": "rollup -c",
+    "docs": "typedoc-pkg --api-link esm",
     "eslint": "eslint .",
     "generate-trie-data": "node src/grapheme/generate/generateOld.cjs",
     "prepublishOnly": "npm run build && npm run test",
     "test": "vitest --coverage",
-    "test-ui": "vitest --ui --coverage",
-    "benchmark": "node --expose-gc ./node_modules/vitest/vitest.mjs bench"
+    "test-ui": "vitest --ui --coverage"
   }
 }
