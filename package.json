@@ -1,6 +1,6 @@
 {
   "name": "@typhonjs-utils/unicode",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Provides tooling for working w/ Unicode including grapheme splitting & iteration.",
   "license": "MPL-2.0",
   "type": "module",
