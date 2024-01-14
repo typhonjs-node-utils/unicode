@@ -7,8 +7,9 @@ export default defineConfig({
       exclude: [...configDefaults.exclude],
       include: ['./test/**/*.test.ts'],
       coverage: {
-         exclude: ['test/**'],
-         provider: 'c8',
+         include: ['src/**'],
+         exclude: ['test/**', 'src/grapheme/generate/**', 'src/unicode-trie/types.ts'],
+         provider: 'v8',
          reporter: ['text', 'json', 'html']
       },
       reporters: ['default', 'html'],
