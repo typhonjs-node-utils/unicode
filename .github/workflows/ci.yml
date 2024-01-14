@@ -28,6 +28,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Required for platform specific dependencies; see: https://github.com/npm/cli/issues/4828
+      - name: Update dependencies
+        run: npm update
+
       - name: Run Tests
         run: npm run test
 
