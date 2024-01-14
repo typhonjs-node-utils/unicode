@@ -161,12 +161,13 @@ export class UnicodeTrieBuilder
       const dataMove = allIndexesLength;
 
       // are indexLength and dataLength within limits?
+      /* v8 ignore next 7 */
       if ((allIndexesLength > ConstB.MAX_INDEX_LENGTH) || // for unshifted indexLength
        ((dataMove + this.#dataNullOffset) > 0xffff) || // for unshifted dataNullOffset
        ((dataMove + ConstB.DATA_0800_OFFSET) > 0xffff) || // for unshifted 2-byte UTF-8 index-2 values
        ((dataMove + this.#dataLength) > ConstB.MAX_DATA_LENGTH_RUNTIME))
       { // for shiftedDataLength
-         throw new Error("Trie data is too large.");
+         throw new Error('Trie data is too large.');
       }
 
       // calculate the sizes of, and allocate, the index and data arrays
@@ -262,8 +263,10 @@ export class UnicodeTrieBuilder
     */
    set(codePoint: number, value: number)
    {
+      /* v8 ignore next 1 */
       if ((codePoint < 0) || (codePoint > 0x10ffff)) { throw new Error('Invalid code point'); }
 
+      /* v8 ignore next 1 */
       if (this.#isCompacted) { throw new Error('Already compacted'); }
 
       const block = this.#getDataBlock(codePoint, true);
@@ -284,10 +287,13 @@ export class UnicodeTrieBuilder
    {
       let block, repeatBlock;
 
+      /* v8 ignore next 1 */
       if (overwrite == null) { overwrite = true; }
 
+      /* v8 ignore next 1 */
       if ((start > 0x10ffff) || (end > 0x10ffff) || (start > end)) { throw new Error('Invalid code point'); }
 
+      /* v8 ignore next 1 */
       if (this.#isCompacted) { throw new Error('Already compacted'); }
 
       if (!overwrite && (value === this.#initialValue)) { return this; } // nothing to do
@@ -499,12 +505,13 @@ export class UnicodeTrieBuilder
             {
                capacity = ConstB.MAX_DATA_LENGTH_BUILDTIME;
             }
+            /* v8 ignore next 7 */
             else
             {
                // Should never occur.
                // Either MAX_DATA_LENGTH_BUILDTIME is incorrect,
                // or the code writes more values than should be possible.
-               throw new Error("Internal error in Trie2 creation.");
+               throw new Error('Internal error in Trie2 creation.');
             }
 
             const newData = new Uint32Array(capacity);
@@ -525,12 +532,14 @@ export class UnicodeTrieBuilder
    {
       const newBlock = this.#index2Length;
       const newTop = newBlock + Const.INDEX_2_BLOCK_LENGTH;
+
+      /* v8 ignore next 7 */
       if (newTop > this.#index2.length)
       {
          // Should never occur.
          // Either MAX_BUILD_TIME_INDEX_LENGTH is incorrect,
          // or the code writes more values than should be possible.
-         throw new Error("Internal error in Trie2 creation.");
+         throw new Error('Internal error in Trie creation.');
       }
 
       this.#index2Length = newTop;
@@ -548,6 +557,7 @@ export class UnicodeTrieBuilder
       let highStart = this.#findHighStart(highValue);
       highStart = (highStart + (ConstB.CP_PER_INDEX_1_ENTRY - 1)) & ~(ConstB.CP_PER_INDEX_1_ENTRY - 1);
 
+      /* v8 ignore next 1 */
       if (highStart === 0x110000) { highValue = this.#errorValue; }
 
       // Set trie->highStart only after utrie2_get32(trie, highStart).
@@ -685,6 +695,7 @@ export class UnicodeTrieBuilder
       this.#dataNullOffset = this.#map[this.#dataNullOffset >> Const.SHIFT_2];
 
       // ensure dataLength alignment
+      /* v8 ignore next 1 */
       while ((newStart & (Const.DATA_GRANULARITY - 1)) !== 0) { this.#data[newStart++] = this.#initialValue; }
 
       this.#dataLength = newStart;

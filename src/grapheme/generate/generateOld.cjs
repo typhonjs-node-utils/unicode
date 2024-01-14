@@ -21,8 +21,8 @@ function parseLine()
             return;
          }
 
-         const [rawRange, type] = body.split(";").map((x) => x.trim());
-         const range = rawRange.split("..").map((x) => parseInt(x, 16));
+         const [rawRange, type] = body.split(';').map((x) => x.trim());
+         const range = rawRange.split('..').map((x) => parseInt(x, 16));
 
          this.push({ start: range[0], end: range[range.length > 1 ? 1 : 0], type });
 
@@ -41,21 +41,21 @@ function parseLine()
 let UAX29;
 (function (UAX29) {
    (function (ClusterBreak) {
-      ClusterBreak[ClusterBreak["Other"] = 0] = "Other";
-      ClusterBreak[ClusterBreak["CR"] = 1] = "CR";
-      ClusterBreak[ClusterBreak["LF"] = 2] = "LF";
-      ClusterBreak[ClusterBreak["Control"] = 4] = "Control";
-      ClusterBreak[ClusterBreak["Extend"] = 8] = "Extend";
-      ClusterBreak[ClusterBreak["ZWJ"] = 16] = "ZWJ";
-      ClusterBreak[ClusterBreak["Regional_Indicator"] = 32] = "Regional_Indicator";
-      ClusterBreak[ClusterBreak["Prepend"] = 64] = "Prepend";
-      ClusterBreak[ClusterBreak["SpacingMark"] = 128] = "SpacingMark";
-      ClusterBreak[ClusterBreak["L"] = 256] = "L";
-      ClusterBreak[ClusterBreak["V"] = 512] = "V";
-      ClusterBreak[ClusterBreak["T"] = 1024] = "T";
-      ClusterBreak[ClusterBreak["LV"] = 2048] = "LV";
-      ClusterBreak[ClusterBreak["LVT"] = 4096] = "LVT";
-      ClusterBreak[ClusterBreak["Extended_Pictographic"] = 8192] = "Extended_Pictographic";
+      ClusterBreak[ClusterBreak['Other'] = 0] = 'Other';
+      ClusterBreak[ClusterBreak['CR'] = 1] = 'CR';
+      ClusterBreak[ClusterBreak['LF'] = 2] = 'LF';
+      ClusterBreak[ClusterBreak['Control'] = 4] = 'Control';
+      ClusterBreak[ClusterBreak['Extend'] = 8] = 'Extend';
+      ClusterBreak[ClusterBreak['ZWJ'] = 16] = 'ZWJ';
+      ClusterBreak[ClusterBreak['Regional_Indicator'] = 32] = 'Regional_Indicator';
+      ClusterBreak[ClusterBreak['Prepend'] = 64] = 'Prepend';
+      ClusterBreak[ClusterBreak['SpacingMark'] = 128] = 'SpacingMark';
+      ClusterBreak[ClusterBreak['L'] = 256] = 'L';
+      ClusterBreak[ClusterBreak['V'] = 512] = 'V';
+      ClusterBreak[ClusterBreak['T'] = 1024] = 'T';
+      ClusterBreak[ClusterBreak['LV'] = 2048] = 'LV';
+      ClusterBreak[ClusterBreak['LVT'] = 4096] = 'LVT';
+      ClusterBreak[ClusterBreak['Extended_Pictographic'] = 8192] = 'Extended_Pictographic';
    })(UAX29.ClusterBreak || (UAX29.ClusterBreak = {}));
 })(UAX29 || (UAX29 = {}));
 

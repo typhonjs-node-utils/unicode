@@ -33,7 +33,7 @@ export class Const
 
    /**
     * Shift size for shifting left the index array values.
-    * Increases possible data size with 16-bit index values at the cost of "compactability".
+    * Increases possible data size with 16-bit index values at the cost of compactability.
     * This requires data blocks to be aligned by #DATA_GRANULARITY.
     */
    static readonly INDEX_SHIFT: number = 2;

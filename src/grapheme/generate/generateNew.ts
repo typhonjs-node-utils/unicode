@@ -83,8 +83,8 @@ function parseLine()
             return;
          }
 
-         const [rawRange, type] = body.split(";").map((x) => x.trim());
-         const range = rawRange.split("..").map((x) => parseInt(x, 16));
+         const [rawRange, type] = body.split(';').map((x) => x.trim());
+         const range = rawRange.split('..').map((x) => parseInt(x, 16));
 
          this.push({ start: range[0], end: range[range.length > 1 ? 1 : 0], type });
 
